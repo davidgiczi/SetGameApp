@@ -1,5 +1,5 @@
 package com.david.giczi.setgameapp.app;
-
+;
 import com.david.giczi.setgameapp.view.SetGamePane;
 import javafx.application.Application;;
 import javafx.scene.Scene;
@@ -22,7 +22,6 @@ public class SetGameApplication extends Application {
         stage.show();
     }
 
-    public static void main(String[] args) {
-        launch();
+    public static void main(String[] args) { launch();
     }
 }
