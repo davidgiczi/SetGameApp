@@ -35,8 +35,6 @@ public class Card {
 
     @Override
     public String toString() {
-        return "Card{" +
-                "feature=" + feature +
-                '}';
+        return feature.get(0) + "_" + feature.get(1) + "_" + feature.get(2) + "_" + feature.get(3) + ".png";
     }
 }

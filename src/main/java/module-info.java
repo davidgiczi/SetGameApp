@@ -1,4 +1,4 @@
-module com.example.setgameapp {
+module com.david.giczi.setgameapp {
     requires javafx.controls;
     requires javafx.fxml;
 
