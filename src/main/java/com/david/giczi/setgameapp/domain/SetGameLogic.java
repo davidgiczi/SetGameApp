@@ -35,7 +35,7 @@ public class SetGameLogic {
         Card twoCard = new Card();
         Card threeCard = new Card();
         for (String cardName : chosenCardList) {
-            String[] nameData = cardName.split("_");
+            String[] nameData = cardName.substring(0, cardName.indexOf(".")).split("_");
             switch (chosenCardList.indexOf(cardName)){
                 case 0:
                     oneCard.getFeature().add(parseFeature(nameData[0]));
