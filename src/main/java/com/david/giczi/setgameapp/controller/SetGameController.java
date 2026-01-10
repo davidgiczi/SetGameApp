@@ -1,7 +1,13 @@
 package com.david.giczi.setgameapp.controller;
 import com.david.giczi.setgameapp.domain.SetGameLogic;
 import com.david.giczi.setgameapp.view.SetGamePane;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
+import javafx.scene.image.Image;
 import javafx.stage.Stage;
+
+import java.util.Objects;
+import java.util.Optional;
 
 public class SetGameController {
 
@@ -30,11 +36,47 @@ public class SetGameController {
     }
 
     public void showNewCards(){
+        if( gamePane.isEndOfTheGame(12) ){
+            getEndOfGameProcess();
+            return;
+        }
         gamePane.getChildren().clear();
         gamePane.setTimerText();
-        gamePane.setSETResult();
-        gamePane.showCards();
+        gamePane.show12Cards();
+        setTitle();
         gamePane.cardNameList.clear();
+    }
+
+    private boolean getConfirmationAlert(String title) {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        Stage stage = (Stage) alert.getDialogPane().getScene().getWindow();
+        stage.getIcons().add(new Image(
+                Objects.requireNonNull(getClass()
+                        .getResourceAsStream("/icon/diamond.png"))));
+        alert.initOwner(primaryStage);
+        alert.setTitle(title);
+        alert.setHeaderText("Would you like to play a new SET game?");
+        Optional<ButtonType> option = alert.showAndWait();
+        return option.get() == ButtonType.OK;
+    }
+
+    public void setTitle(){
+            primaryStage.setTitle("SET: " + gamePane.getSetStateValue() +
+                    ", Not SET: " + gamePane.getNotSetStateValue() +
+                    ", Cards: " + (SetGameLogic.MAX_CARDS - gamePane.getCardIndex()));
+    }
+
+    public void getEndOfGameProcess(){
+      getGamePane().getTimeline().stop();
+      int score = 0 >= gamePane.getSetStateValue() - gamePane.getNotSetStateValue() ? 0 :
+              (gamePane.getSetStateValue() - gamePane.getNotSetStateValue() ) / gamePane.getSec();
+      if( getConfirmationAlert("Your score: " + score) ){
+            gamePane.initGame();
+            primaryStage.setTitle("Let's play SET!");
+      }
+      else {
+          System.exit(0);
+      }
     }
 
 }

@@ -6,7 +6,6 @@ import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.scene.input.MouseButton;
 import javafx.stage.Stage;
-
 import java.util.Objects;
 
 public class SetGameApplication extends Application {
@@ -25,12 +24,15 @@ public class SetGameApplication extends Application {
             if( mouseEvent.getButton() == MouseButton.SECONDARY){
                 controller.showNewCards();
             }
+            else if( mouseEvent.getButton() == MouseButton.MIDDLE ){
+                controller.getGamePane().show4MoreCards();
+            }
         });
         Scene scene = new Scene(controller.getGamePane());
         stage.getIcons().add(new Image(
                 Objects.requireNonNull(getClass()
                         .getResourceAsStream("/icon/diamond.png"))));
-        stage.setTitle("Let's play Set!");
+        stage.setTitle("Let's play SET!");
         stage.setMaximized(true);
         stage.setResizable(true);
         stage.setScene(scene);

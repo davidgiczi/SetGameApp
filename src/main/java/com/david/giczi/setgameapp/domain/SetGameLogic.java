@@ -9,7 +9,7 @@ public class SetGameLogic {
     private static final Feature[] COLOR = {Feature.red, Feature.green, Feature.purple};
     private static final Feature[] FORM = {Feature.capsule, Feature.cell, Feature.square};
     private static final Feature[] FILLING = {Feature.empty, Feature.filled, Feature.striped};
-    private static final int MAX_CARDS = 81;
+    public static final int MAX_CARDS = 81;
 
     public List<Card> getCards(int numberOfCards){
         List<Card> cards = new ArrayList<>();

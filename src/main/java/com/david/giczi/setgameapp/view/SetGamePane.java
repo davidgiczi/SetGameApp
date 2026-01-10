@@ -2,6 +2,7 @@ package com.david.giczi.setgameapp.view;
 
 import com.david.giczi.setgameapp.controller.SetGameController;
 import com.david.giczi.setgameapp.domain.Card;
+import com.david.giczi.setgameapp.domain.SetGameLogic;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.scene.Cursor;
@@ -24,24 +25,26 @@ import java.util.Objects;
 public class SetGamePane extends AnchorPane {
 
     private final SetGameController controller;
+    private int cardIndex;
     private int sec;
-    private int SET;
-    private int notSET;
-    private Text SETText;
-    private Text notSETText;
+    private int setStateValue;
+    private int notSetStateValue;
+    private boolean isAdded4MoreCards;
     private Text timerText;
+    public List<Card> cardList;
     private final Timeline timeline;
     public final List<String> cardNameList;
+    private final String PATH = "/patterns/";
     public static final double MILLIMETER = 1000 / 224.0;
 
     public SetGamePane(SetGameController controller) {
         this.controller = controller;
+        this.cardList = controller.getGameLogic().getCards(81);
         this.cardNameList = new ArrayList<>();
-        this.SET = 0;
-        this.notSET = 0;
-        showCards();
+        this.setStateValue = 0;
+        this.notSetStateValue = 0;
+        show12Cards();
         setTimerText();
-        setSETResult();
         timeline = new Timeline(new KeyFrame(Duration.seconds(1), e -> timerText.setText(getTimeFormat(sec++))));
         timeline.setCycleCount(Timeline.INDEFINITE);
         timeline.play();
@@ -51,16 +54,29 @@ public class SetGamePane extends AnchorPane {
         return timeline;
     }
 
-    public void showCards(){
-        List<Card> cards = controller.getGameLogic().getCards(12);
-        String PATH = "/patterns/";
+    public int getCardIndex() {
+        return cardIndex;
+    }
+
+    public int getSetStateValue() {
+        return setStateValue;
+    }
+
+    public int getNotSetStateValue() {
+        return notSetStateValue;
+    }
+    public int getSec() {
+        return sec;
+    }
+
+    public void show12Cards(){
         double HR_SHIFT = 0;
         double VR_SHIFT = 0;
-        for (int i = 1; i <= cards.size(); i++) {
+        for (int i = cardIndex; i < cardIndex + 12; i++) {
             ImageView cardImage = new ImageView(new Image(Objects.requireNonNull(getClass()
-                    .getResourceAsStream(PATH + cards.get(i - 1).toString()))));
-            cardImage.setId(cards.get(i - 1).toString());
-            cardImage.setOnMouseClicked(c -> setShadowForCardImage(cardImage));
+                    .getResourceAsStream(PATH + cardList.get(i).toString()))));
+            cardImage.setId(cardList.get(i).toString());
+            cardImage.setOnMouseClicked(c -> onClickCardProcess(cardImage));
             cardImage.setPreserveRatio(true);
             cardImage.setScaleX(0.2);
             cardImage.setScaleY(0.2);
@@ -69,14 +85,16 @@ public class SetGamePane extends AnchorPane {
             cardImage.yProperty().bind(heightProperty().divide(10).subtract(50 * MILLIMETER).add(VR_SHIFT));
             getChildren().add(cardImage);
             HR_SHIFT += 60 * MILLIMETER;
-            if(i % 4 == 0){
+            if((i + 1) % 4 == 0){
                 HR_SHIFT = 0;
                 VR_SHIFT += 40 * MILLIMETER;
             }
         }
+        cardIndex += 12;
+        isAdded4MoreCards = false;
     }
 
-    private void setShadowForCardImage(ImageView cardImage){
+    private void onClickCardProcess(ImageView cardImage){
         if( cardImage.getEffect() == null ){
 
             cardImage.setStyle("-fx-effect: dropshadow(gaussian, gray, 50, 0.4, 0, 0);");
@@ -84,14 +102,15 @@ public class SetGamePane extends AnchorPane {
 
               if( controller.getGameLogic().isSetCards(cardNameList) ){
                   getInfoWindow("SET");
-                  this.SET++;
-                  SETText.setText("SET: " + this.SET);
-                  deleteSetStateCards();
+                  this.setStateValue++;
+                  clearChosenCardsShadow();
+                  show3NewCards();
+                  controller.setTitle();
               }
               else{
                   getInfoWindow("Not SET");
-                  this.notSET++;
-                  notSETText.setText("Not SET: " + this.notSET);
+                  this.notSetStateValue++;
+                  controller.setTitle();
                   clearChosenCardsShadow();
               }
                 cardNameList.clear();
@@ -118,10 +137,51 @@ public class SetGamePane extends AnchorPane {
         }
     }
 
-    private void deleteSetStateCards(){
-        for (String cardId : cardNameList) {
-            getChildren().removeIf(card -> card.getId().equals(cardId));
+    private void show3NewCards(){
+        if( isEndOfTheGame(3) ){
+            controller.getEndOfGameProcess();
+            return;
         }
+        for (String cardId : cardNameList) {
+            for (Node card : getChildren()) {
+                if(card.getId().equals(cardId) ){
+                   ImageView cardImage = (ImageView) getChildren().get(getChildren().indexOf(card));
+                   cardImage.setImage(new Image(Objects.requireNonNull(getClass()
+                            .getResourceAsStream(PATH + cardList.get(cardIndex).toString()))));
+                   cardImage.setId(cardList.get(cardIndex).toString());
+                   getChildren().set(getChildren().indexOf(card), cardImage);
+                }
+            }
+            cardIndex++;
+        }
+    }
+
+    public void show4MoreCards(){
+        if( isAdded4MoreCards ){
+            return;
+        }
+        if( isEndOfTheGame(4) ){
+            controller.getEndOfGameProcess();
+            return;
+        }
+        double HR_SHIFT = 0;
+        for (int i = cardIndex; i < cardIndex + 4; i++) {
+            ImageView cardImage = new ImageView(new Image(Objects.requireNonNull(getClass()
+                    .getResourceAsStream(PATH + cardList.get(i).toString()))));
+            cardImage.setId(cardList.get(i).toString());
+            cardImage.setOnMouseClicked(c -> onClickCardProcess(cardImage));
+            cardImage.setPreserveRatio(true);
+            cardImage.setScaleX(0.2);
+            cardImage.setScaleY(0.2);
+            cardImage.setCursor(Cursor.HAND);
+            cardImage.xProperty().bind(widthProperty().divide(10).subtract(70 * MILLIMETER).add(HR_SHIFT));
+            cardImage.yProperty().bind(heightProperty().divide(10).add(70 * MILLIMETER));
+            getChildren().add(cardImage);
+            HR_SHIFT += 60 * MILLIMETER;
+        }
+        cardIndex += 4;
+        isAdded4MoreCards = true;
+        controller.setTitle();
     }
 
     private void getInfoWindow(String title) {
@@ -156,20 +216,6 @@ public class SetGamePane extends AnchorPane {
         stage.show();
     }
 
-    public void setSETResult(){
-        SETText = new Text("SET: " + this.SET);
-        SETText.setFont(Font.font("Book Antiqua", FontWeight.BOLD, FontPosture.REGULAR, 24));
-        SETText.setId("set");
-        SETText.xProperty().bind(widthProperty().divide(11).multiply(5));
-        SETText.yProperty().bind(heightProperty().divide(15).multiply(13));
-        notSETText = new Text("Not SET: " + this.notSET);
-        notSETText.setFont(Font.font("Book Antiqua", FontWeight.BOLD, FontPosture.REGULAR, 24));
-        notSETText.setId("not-set");
-        notSETText.xProperty().bind(widthProperty().divide(11).multiply(5));
-        notSETText.yProperty().bind(heightProperty().divide(15).multiply(14));
-        getChildren().addAll(SETText, notSETText);
-    }
-
     public void setTimerText(){
         timerText = new Text(getTimeFormat(sec));
         timerText.setId("timer");
@@ -188,6 +234,24 @@ public class SetGamePane extends AnchorPane {
             return (10 > min ? "0" + min : min) + ":" + (10 > sec ? "0" + sec : sec);
         }
         return hour + ":" + (10 > min ? "0" + min : min) + ":" + (10 > sec ? "0" + sec : sec);
+    }
+
+    public boolean isEndOfTheGame(int cards){
+        return  0 >= SetGameLogic.MAX_CARDS - cardIndex - cards;
+    }
+
+    public void initGame(){
+        sec = 0;
+        cardIndex = 0;
+        setStateValue = 0;
+        notSetStateValue = 0;
+        isAdded4MoreCards = false;
+        cardNameList.clear();
+        cardList = controller.getGameLogic().getCards(81);
+        getChildren().clear();
+        setTimerText();
+        show12Cards();
+        timeline.play();
     }
 
 }
