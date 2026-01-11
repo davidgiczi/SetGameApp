@@ -46,7 +46,8 @@ public class SetGamePane extends AnchorPane {
         setStyle("-fx-background-color: white;");
         showCards(12);
         setTimerText();
-        timeline = new Timeline(new KeyFrame(Duration.seconds(1), e -> timerText.setText(getTimeFormat(sec++))));
+        timeline = new Timeline(new KeyFrame(Duration.seconds(1),
+                e -> timerText.setText(getTimeFormat(sec++))));
         timeline.setCycleCount(Timeline.INDEFINITE);
         timeline.play();
     }
@@ -276,6 +277,7 @@ public class SetGamePane extends AnchorPane {
     }
 
     public boolean isLastCards(int pcs){
+
         return  0 >= SetGameLogic.MAX_CARDS - cardIndex - pcs;
     }
 
@@ -283,18 +285,18 @@ public class SetGamePane extends AnchorPane {
         return SetGameLogic.MAX_CARDS == cardIndex;
     }
 
-    public void initGame(){
-        sec = 0;
-        cardIndex = 0;
-        setStateValue = 0;
-        notSetStateValue = 0;
+    public void initGamePane(){
+        this.sec = 0;
+        this.cardIndex = 0;
+        this.setStateValue = 0;
+        this.notSetStateValue = 0;
         isAdded4MoreCards = false;
         cardNameList.clear();
         cardList = controller.getGameLogic().getCards(81);
         getChildren().clear();
         setTimerText();
         showCards(12);
-        timeline.play();
+        getTimeline().play();
     }
 
 }

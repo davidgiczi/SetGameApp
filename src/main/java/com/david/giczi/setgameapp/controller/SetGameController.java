@@ -69,9 +69,10 @@ public class SetGameController {
     public void getEndOfGameProcess(){
       getGamePane().getTimeline().stop();
       int score = 0 >= gamePane.getSetStateValue() - gamePane.getNotSetStateValue() ? 0 :
-            1000 * (gamePane.getSetStateValue() - gamePane.getNotSetStateValue() ) / gamePane.getSec();
+            10000 * Math.round((float)
+                    ((gamePane.getSetStateValue() - gamePane.getNotSetStateValue()) / gamePane.getSec()));
       if( getConfirmationAlert("Your score: " + score) ){
-            gamePane.initGame();
+            gamePane.initGamePane();
             primaryStage.setTitle("Let's play SET!");
       }
       else {
