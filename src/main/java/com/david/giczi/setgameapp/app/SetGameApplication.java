@@ -25,7 +25,7 @@ public class SetGameApplication extends Application {
                 controller.showNewCards();
             }
             else if( mouseEvent.getButton() == MouseButton.MIDDLE ){
-                controller.getGamePane().show4MoreCards();
+                controller.getGamePane().add4MoreCards();
             }
         });
         Scene scene = new Scene(controller.getGamePane());

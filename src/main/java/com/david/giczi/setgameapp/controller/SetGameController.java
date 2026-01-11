@@ -36,13 +36,13 @@ public class SetGameController {
     }
 
     public void showNewCards(){
-        if( gamePane.isEndOfTheGame(12) ){
+        if( gamePane.isEndOfTheGame() ){
             getEndOfGameProcess();
             return;
         }
         gamePane.getChildren().clear();
         gamePane.setTimerText();
-        gamePane.show12Cards();
+        gamePane.showCards(12);
         setTitle();
         gamePane.cardNameList.clear();
     }
@@ -69,7 +69,7 @@ public class SetGameController {
     public void getEndOfGameProcess(){
       getGamePane().getTimeline().stop();
       int score = 0 >= gamePane.getSetStateValue() - gamePane.getNotSetStateValue() ? 0 :
-              (gamePane.getSetStateValue() - gamePane.getNotSetStateValue() ) / gamePane.getSec();
+            1000 * (gamePane.getSetStateValue() - gamePane.getNotSetStateValue() ) / gamePane.getSec();
       if( getConfirmationAlert("Your score: " + score) ){
             gamePane.initGame();
             primaryStage.setTitle("Let's play SET!");
