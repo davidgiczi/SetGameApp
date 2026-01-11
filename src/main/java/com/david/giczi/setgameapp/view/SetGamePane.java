@@ -231,6 +231,7 @@ public class SetGamePane extends AnchorPane {
         stage.setWidth(520);
         stage.setHeight(270);
         AnchorPane pane = new AnchorPane();
+        pane.setStyle("-fx-background-color: white;");
         pane.setPrefWidth(520);
         pane.setPrefHeight(270);
         String PATH = "/patterns/";
