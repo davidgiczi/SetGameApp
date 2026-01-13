@@ -5,6 +5,7 @@ import com.david.giczi.setgameapp.domain.Card;
 import com.david.giczi.setgameapp.domain.SetGameLogic;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
+import javafx.application.Platform;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.Scene;
@@ -31,6 +32,7 @@ public class SetGamePane extends AnchorPane {
     private int notSetStateValue;
     private boolean isAdded4MoreCards;
     private Text timerText;
+    private Stage infoStage;
     public List<Card> cardList;
     private final Timeline timeline;
     public final List<String> cardNameList;
@@ -49,7 +51,7 @@ public class SetGamePane extends AnchorPane {
         timeline = new Timeline(new KeyFrame(Duration.seconds(1),
                 e -> { timerText.setText(getTimeFormat(sec++));
                     if( isEndOfTheGame() ){
-                        controller.getEndOfGameProcess();
+                    Platform.runLater(controller::getEndOfGameProcess);
                     }
         }));
         timeline.setCycleCount(Timeline.INDEFINITE);
@@ -220,13 +222,13 @@ public class SetGamePane extends AnchorPane {
     }
 
     private void getInfoWindow(String title) {
-        Stage stage = new Stage();
-        stage.getIcons().add(new Image(
+        infoStage = new Stage();
+        infoStage.getIcons().add(new Image(
                 Objects.requireNonNull(getClass()
                         .getResourceAsStream("/icon/diamond.png"))));
-        stage.initOwner(controller.getPrimaryStage());
-        stage.setWidth(520);
-        stage.setHeight(270);
+        infoStage.initOwner(controller.getPrimaryStage());
+        infoStage.setWidth(520);
+        infoStage.setHeight(270);
         AnchorPane pane = new AnchorPane();
         pane.setStyle("-fx-background-color: white;");
         pane.setPrefWidth(520);
@@ -246,10 +248,10 @@ public class SetGamePane extends AnchorPane {
             HR_SHIFT += 35 * MILLIMETER;
         }
         Scene scene = new Scene(pane);
-        stage.setResizable(false);
-        stage.setTitle(title);
-        stage.setScene(scene);
-        stage.show();
+        infoStage.setResizable(false);
+        infoStage.setTitle(title);
+        infoStage.setScene(scene);
+        infoStage.show();
     }
 
     public void setTimerText(){
@@ -283,6 +285,9 @@ public class SetGamePane extends AnchorPane {
         this.cardIndex = 0;
         this.setStateValue = 0;
         this.notSetStateValue = 0;
+        if( infoStage != null ){
+            infoStage.hide();
+        }
         isAdded4MoreCards = false;
         cardNameList.clear();
         cardList = controller.getGameLogic().getCards(81);
