@@ -36,8 +36,7 @@ public class SetGameController {
     }
 
     public void showNewCards(){
-        if( gamePane.isEndOfTheGame() ){
-            getEndOfGameProcess();
+        if( SetGameLogic.MAX_CARDS == gamePane.getCardIndex() ){
             return;
         }
         gamePane.getChildren().clear();

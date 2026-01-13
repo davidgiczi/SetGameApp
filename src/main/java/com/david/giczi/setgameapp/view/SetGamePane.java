@@ -47,7 +47,11 @@ public class SetGamePane extends AnchorPane {
         showCards(12);
         setTimerText();
         timeline = new Timeline(new KeyFrame(Duration.seconds(1),
-                e -> timerText.setText(getTimeFormat(sec++))));
+                e -> { timerText.setText(getTimeFormat(sec++));
+                    if( isEndOfTheGame() ){
+                        controller.getEndOfGameProcess();
+                    }
+        }));
         timeline.setCycleCount(Timeline.INDEFINITE);
         timeline.play();
     }
@@ -119,7 +123,7 @@ public class SetGamePane extends AnchorPane {
                   getInfoWindow("SET");
                   this.setStateValue++;
                   clearChosenCardsShadow();
-                  if( isAdded4MoreCards ){
+                  if( isAdded4MoreCards || SetGameLogic.MAX_CARDS == cardIndex ){
                       delete3Cards();
                   }
                   else{
@@ -158,10 +162,6 @@ public class SetGamePane extends AnchorPane {
     }
 
     private void show3NewCards(){
-        if( isEndOfTheGame() ){
-            controller.getEndOfGameProcess();
-            return;
-        }
         int lastCards = 3;
         if( isLastCards(3) ){
             lastCards = SetGameLogic.MAX_CARDS - cardIndex;
@@ -182,10 +182,6 @@ public class SetGamePane extends AnchorPane {
 
     public void add4MoreCards(){
         if( isAdded4MoreCards ){
-            return;
-        }
-        if( isEndOfTheGame() ){
-            controller.getEndOfGameProcess();
             return;
         }
         int lastCards = 4;
@@ -277,14 +273,11 @@ public class SetGamePane extends AnchorPane {
     }
 
     public boolean isLastCards(int pcs){
-
         return  0 >= SetGameLogic.MAX_CARDS - cardIndex - pcs;
     }
-
     public boolean isEndOfTheGame(){
-        return SetGameLogic.MAX_CARDS == cardIndex;
+        return  SetGameLogic.MAX_CARDS == cardIndex && 4 > getChildren().size();
     }
-
     public void initGamePane(){
         this.sec = 0;
         this.cardIndex = 0;

@@ -27,6 +27,10 @@ public class SetGameApplication extends Application {
             else if( mouseEvent.getButton() == MouseButton.MIDDLE ){
                 controller.getGamePane().add4MoreCards();
             }
+            else if( mouseEvent.getButton() == MouseButton.PRIMARY &&
+                    mouseEvent.getClickCount() == 2 ){
+                controller.getEndOfGameProcess();
+            }
         });
         Scene scene = new Scene(controller.getGamePane());
         stage.getIcons().add(new Image(
