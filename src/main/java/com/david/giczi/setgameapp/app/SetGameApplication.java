@@ -22,10 +22,8 @@ public class SetGameApplication extends Application {
         controller.setPrimaryStage(stage);
         controller.getGamePane().setOnMouseClicked(mouseEvent -> {
             if( mouseEvent.getButton() == MouseButton.SECONDARY){
-                controller.showNewCards();
-            }
-            else if( mouseEvent.getButton() == MouseButton.MIDDLE ){
-                controller.getGamePane().add4MoreCards();
+                controller.add3NewCards();
+                controller.setTitle();
             }
             else if( mouseEvent.getButton() == MouseButton.PRIMARY &&
                     mouseEvent.getClickCount() == 2 ){

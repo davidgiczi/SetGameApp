@@ -5,7 +5,6 @@ import com.david.giczi.setgameapp.domain.Card;
 import com.david.giczi.setgameapp.domain.SetGameLogic;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
-import javafx.application.Platform;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.Scene;
@@ -27,10 +26,10 @@ public class SetGamePane extends AnchorPane {
 
     private final SetGameController controller;
     private int cardIndex;
+    private int columnIndex;
     private int sec;
     private int setStateValue;
     private int notSetStateValue;
-    private boolean isAdded4MoreCards;
     private Text timerText;
     private Stage infoStage;
     public List<Card> cardList;
@@ -46,14 +45,11 @@ public class SetGamePane extends AnchorPane {
         this.setStateValue = 0;
         this.notSetStateValue = 0;
         setStyle("-fx-background-color: white;");
-        showCards(12);
+        showCards();
         setTimerText();
         timeline = new Timeline(new KeyFrame(Duration.seconds(1),
-                e -> { timerText.setText(getTimeFormat(sec++));
-                    if( isEndOfTheGame() ){
-                    Platform.runLater(controller::getEndOfGameProcess);
-                    }
-        }));
+                e ->  timerText.setText(getTimeFormat(sec++))
+        ));
         timeline.setCycleCount(Timeline.INDEFINITE);
         timeline.play();
     }
@@ -69,7 +65,6 @@ public class SetGamePane extends AnchorPane {
     public int getSetStateValue() {
         return setStateValue;
     }
-
     public int getNotSetStateValue() {
         return notSetStateValue;
     }
@@ -77,15 +72,11 @@ public class SetGamePane extends AnchorPane {
         return sec;
     }
 
-    public void showCards(int pcs){
+    public void showCards(){
         double HR_SHIFT = 0;
         double VR_SHIFT = 0;
         int rowIndex = 0;
-        int lastCards = pcs;
-        if( isLastCards(pcs) ){
-            lastCards = SetGameLogic.MAX_CARDS - cardIndex;
-        }
-        for (int i = cardIndex; i < cardIndex + lastCards; i++) {
+        for (int i = cardIndex; i < cardIndex + 12; i++) {
             ImageView cardImage = new ImageView(new Image(Objects.requireNonNull(getClass()
                     .getResourceAsStream(PATH + cardList.get(i).toString()))));
             cardImage.setId(cardList.get(i).toString());
@@ -94,25 +85,20 @@ public class SetGamePane extends AnchorPane {
             cardImage.setScaleX(0.2);
             cardImage.setScaleY(0.2);
             cardImage.setCursor(Cursor.HAND);
-            cardImage.xProperty().bind(widthProperty().divide(10).subtract(70 * MILLIMETER).add(HR_SHIFT));
-            cardImage.yProperty().bind(heightProperty().divide(10).subtract(50 * MILLIMETER).add(VR_SHIFT));
+            cardImage.setRotate(90);
+            cardImage.xProperty().bind(widthProperty().divide(10).subtract(135 * MILLIMETER).add(HR_SHIFT));
+            cardImage.yProperty().bind(heightProperty().divide(10).subtract(45 * MILLIMETER).add(VR_SHIFT));
             getChildren().add(cardImage);
-            HR_SHIFT += 60 * MILLIMETER;
+            HR_SHIFT += 50 * MILLIMETER;
            if( rowIndex % 4 == 3 ){
                 HR_SHIFT = 0;
-                VR_SHIFT += 40 * MILLIMETER;
+                VR_SHIFT += 55 * MILLIMETER;
                 rowIndex = 0;
                 continue;
             }
             rowIndex++;
         }
-        if( isLastCards(pcs) ){
-            cardIndex = SetGameLogic.MAX_CARDS;
-        }
-        else{
-            cardIndex += 12;
-        }
-        isAdded4MoreCards = false;
+        cardIndex += 12;
     }
 
     private void onClickCardProcess(ImageView cardImage){
@@ -125,11 +111,12 @@ public class SetGamePane extends AnchorPane {
                   getInfoWindow("SET");
                   this.setStateValue++;
                   clearChosenCardsShadow();
-                  if( isAdded4MoreCards || SetGameLogic.MAX_CARDS == cardIndex ){
-                      delete3Cards();
+                  if(  13 >= getChildren().size() && 79 > cardIndex ){
+                      show3NewCards();
                   }
                   else{
-                      show3NewCards();
+                      delete3Cards();
+                      reShowCards();
                   }
                   controller.setTitle();
               }
@@ -140,6 +127,9 @@ public class SetGamePane extends AnchorPane {
                   clearChosenCardsShadow();
               }
                 cardNameList.clear();
+                if( isEndOfTheGame() ){
+                    controller.getEndOfGameProcess();
+                }
             }
         }
         else {
@@ -164,11 +154,7 @@ public class SetGamePane extends AnchorPane {
     }
 
     private void show3NewCards(){
-        int lastCards = 3;
-        if( isLastCards(3) ){
-            lastCards = SetGameLogic.MAX_CARDS - cardIndex;
-        }
-        for (int i = 0; i < lastCards; i++) {
+        for (int i = 0; i < 3; i++) {
             for (Node card : getChildren()) {
                 if(card.getId().equals(cardNameList.get(i)) ){
                    ImageView cardImage = (ImageView) getChildren().get(getChildren().indexOf(card));
@@ -181,17 +167,14 @@ public class SetGamePane extends AnchorPane {
             cardIndex++;
         }
     }
-
-    public void add4MoreCards(){
-        if( isAdded4MoreCards ){
+    public void add3NewCards(){
+        if( columnIndex == 3 ){
             return;
         }
-        int lastCards = 4;
-        if( isLastCards(4) ){
-            lastCards = SetGameLogic.MAX_CARDS - cardIndex;
-        }
-        double HR_SHIFT = 0;
-        for (int i = cardIndex; i < cardIndex + lastCards; i++) {
+        columnIndex++;
+        double HR_SHIFT = 50 * MILLIMETER;
+        double VR_SHIFT = 0;
+        for (int i = cardIndex; i < cardIndex + 3; i++) {
             ImageView cardImage = new ImageView(new Image(Objects.requireNonNull(getClass()
                     .getResourceAsStream(PATH + cardList.get(i).toString()))));
             cardImage.setId(cardList.get(i).toString());
@@ -200,19 +183,56 @@ public class SetGamePane extends AnchorPane {
             cardImage.setScaleX(0.2);
             cardImage.setScaleY(0.2);
             cardImage.setCursor(Cursor.HAND);
-            cardImage.xProperty().bind(widthProperty().divide(10).subtract(70 * MILLIMETER).add(HR_SHIFT));
-            cardImage.yProperty().bind(heightProperty().divide(10).add(70 * MILLIMETER));
+            cardImage.setRotate(90);
+            cardImage.xProperty().bind(widthProperty().divide(10).add(15 * MILLIMETER).add(columnIndex * HR_SHIFT));
+            cardImage.yProperty().bind(heightProperty().divide(10).subtract(45 * MILLIMETER).add(VR_SHIFT));
             getChildren().add(cardImage);
-            HR_SHIFT += 60 * MILLIMETER;
+            VR_SHIFT += 55 * MILLIMETER;
         }
-        if( isLastCards(4) ){
-            cardIndex = SetGameLogic.MAX_CARDS;
+        cardIndex += 3;
+    }
+
+    private void reShowCards(){
+        List<String> cardIdList = new ArrayList<>();
+        for (int i = getChildren().size() - 1; i >= 0; i--) {
+            if( getChildren().get(i).getId().equals("timer") ){
+                continue;
+            }
+            cardIdList.add(getChildren().get(i).getId());
+            getChildren().remove(i);
         }
-        else{
-            cardIndex += 4;
+        int colIndex = cardIdList.size() / 3;
+        switch ( colIndex ){
+            case 4 :
+                columnIndex = 0;
+                break;
+            case 5 :
+                columnIndex = 1;
+                break;
+            case 6 :
+                columnIndex = 2;
         }
-        isAdded4MoreCards = true;
-        controller.setTitle();
+        double HR_SHIFT = 0;
+        double VR_SHIFT = 0;
+        for (int i = 0 ; i < cardIdList.size(); i++) {
+            ImageView cardImage = new ImageView(new Image(Objects.requireNonNull(getClass()
+                    .getResourceAsStream(PATH + cardIdList.get(i)))));
+            cardImage.setId(cardIdList.get(i));
+            cardImage.setOnMouseClicked(c -> onClickCardProcess(cardImage));
+            cardImage.setPreserveRatio(true);
+            cardImage.setScaleX(0.2);
+            cardImage.setScaleY(0.2);
+            cardImage.setCursor(Cursor.HAND);
+            cardImage.setRotate(90);
+            cardImage.xProperty().bind(widthProperty().divide(10).subtract(135 * MILLIMETER).add(HR_SHIFT));
+            cardImage.yProperty().bind(heightProperty().divide(10).subtract(45 * MILLIMETER).add(VR_SHIFT));
+            getChildren().add(cardImage);
+            HR_SHIFT += 50 * MILLIMETER;
+            if( (i + 1) % colIndex == 0 ){
+                HR_SHIFT = 0;
+                VR_SHIFT += 55 * MILLIMETER;
+            }
+        }
     }
 
     private void delete3Cards(){
@@ -273,10 +293,6 @@ public class SetGamePane extends AnchorPane {
         }
         return hour + ":" + (10 > min ? "0" + min : min) + ":" + (10 > sec ? "0" + sec : sec);
     }
-
-    public boolean isLastCards(int pcs){
-        return  0 >= SetGameLogic.MAX_CARDS - cardIndex - pcs;
-    }
     public boolean isEndOfTheGame(){
         return  SetGameLogic.MAX_CARDS == cardIndex && 4 > getChildren().size();
     }
@@ -285,15 +301,15 @@ public class SetGamePane extends AnchorPane {
         this.cardIndex = 0;
         this.setStateValue = 0;
         this.notSetStateValue = 0;
+        this.columnIndex = 0;
         if( infoStage != null ){
             infoStage.hide();
         }
-        isAdded4MoreCards = false;
         cardNameList.clear();
         cardList = controller.getGameLogic().getCards(81);
         getChildren().clear();
         setTimerText();
-        showCards(12);
+        showCards();
         getTimeline().play();
     }
 

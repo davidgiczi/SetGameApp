@@ -5,7 +5,6 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
-
 import java.util.Objects;
 import java.util.Optional;
 
@@ -35,15 +34,11 @@ public class SetGameController {
         this.primaryStage = primaryStage;
     }
 
-    public void showNewCards(){
+    public void add3NewCards(){
         if( SetGameLogic.MAX_CARDS == gamePane.getCardIndex() ){
             return;
         }
-        gamePane.getChildren().clear();
-        gamePane.setTimerText();
-        gamePane.showCards(12);
-        setTitle();
-        gamePane.cardNameList.clear();
+        gamePane.add3NewCards();
     }
 
     private boolean getConfirmationAlert(String title) {
