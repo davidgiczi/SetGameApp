@@ -76,9 +76,11 @@ public class SetGamePane extends AnchorPane {
         double HR_SHIFT = 0;
         double VR_SHIFT = 0;
         int rowIndex = 0;
+        controller.getGameLogic().getActualCardsList().clear();
         for (int i = cardIndex; i < cardIndex + 12; i++) {
             ImageView cardImage = new ImageView(new Image(Objects.requireNonNull(getClass()
                     .getResourceAsStream(PATH + cardList.get(i).toString()))));
+            controller.getGameLogic().getActualCardsList().add(cardList.get(i));
             cardImage.setId(cardList.get(i).toString());
             cardImage.setOnMouseClicked(c -> onClickCardProcess(cardImage));
             cardImage.setPreserveRatio(true);
@@ -102,64 +104,76 @@ public class SetGamePane extends AnchorPane {
     }
 
     private void onClickCardProcess(ImageView cardImage){
-        if( cardImage.getEffect() == null ){
 
-            cardImage.setStyle("-fx-effect: dropshadow(gaussian, gray, 50, 0.4, 0, 0);");
+               if( !isChosenCard(cardImage) ){
+                   return;
+               }
+
             if( isChosenThreeCards(cardImage.getId()) ) {
 
               if( controller.getGameLogic().isSetCards(cardNameList) ){
                   getInfoWindow("SET");
                   this.setStateValue++;
-                  clearChosenCardsShadow();
-                  if(  13 >= getChildren().size() && 79 > cardIndex ){
-                      show3NewCards();
-                  }
-                  else{
-                      delete3Cards();
-                      reShowCards();
-                  }
-                  controller.setTitle();
+                  controller.setTitle(false);
               }
               else{
                   getInfoWindow("Not SET");
                   this.notSetStateValue++;
-                  controller.setTitle();
-                  clearChosenCardsShadow();
+                  controller.setTitle(false);
               }
-                cardNameList.clear();
-                if( isEndOfTheGame() ){
-                    controller.getEndOfGameProcess();
-                }
             }
-        }
-        else {
-            cardImage.setStyle("-fx-effect: null;");
-            cardNameList.remove(cardImage.getId());
-        }
     }
 
     private boolean isChosenThreeCards(String cardId){
-        cardNameList.add(cardId);
+        if( !cardNameList.contains(cardId) ){
+            cardNameList.add(cardId);
+        }
         return 3 <= cardNameList.size();
     }
 
     private void clearChosenCardsShadow(){
-        for (String cardId : cardNameList) {
             for (Node card : getChildren()) {
-                if( card.getId().equals(cardId) ){
-                    card.setStyle("-fx-effect: null;");
+                if( card.getId().equals("timer") ){
+                    return;
+                }
+                card.setStyle("-fx-effect: null;");
+            }
+        }
+    private boolean isChosenCard(ImageView cardImage){
+        if( cardImage.getEffect() == null ){
+            cardImage.setStyle("-fx-effect: dropshadow(gaussian, gray, 50, 0.4, 0, 0);");
+        }
+        else if( cardImage.getStyle().equals("-fx-effect: dropshadow(gaussian, red, 50, 0.4, 0, 0);") ) {
+            cardImage.setStyle("-fx-effect: dropshadow(gaussian, gray, 50, 0.4, 0, 0);");
+        }
+        else if( cardImage.getStyle().equals("-fx-effect: dropshadow(gaussian, gray, 50, 0.4, 0, 0);") ) {
+            cardImage.setStyle("-fx-effect: null;");
+            cardNameList.remove(cardImage.getId());
+            return false;
+        }
+
+        return true;
+    }
+    public void showSETCards() {
+        if (controller.getConfirmationAlert("Show SET cards", "Would you like to see SET cards?")) {
+            for (Card cardInLogic : controller.getGameLogic().getCardsOfSET()) {
+                for (Node cardOnScreen : getChildren()) {
+                    if (cardInLogic.toString().equals(cardOnScreen.getId())) {
+                        cardOnScreen.setStyle("-fx-effect: dropshadow(gaussian, red, 50, 0.4, 0, 0);");
+                    }
                 }
             }
         }
     }
 
-    private void show3NewCards(){
+    private void set3NewCards(){
         for (int i = 0; i < 3; i++) {
             for (Node card : getChildren()) {
                 if(card.getId().equals(cardNameList.get(i)) ){
                    ImageView cardImage = (ImageView) getChildren().get(getChildren().indexOf(card));
                    cardImage.setImage(new Image(Objects.requireNonNull(getClass()
                             .getResourceAsStream(PATH + cardList.get(cardIndex).toString()))));
+                   controller.getGameLogic().getActualCardsList().set(getChildren().indexOf(card), cardList.get(cardIndex));
                    cardImage.setId(cardList.get(cardIndex).toString());
                    getChildren().set(getChildren().indexOf(card), cardImage);
                 }
@@ -177,6 +191,7 @@ public class SetGamePane extends AnchorPane {
         for (int i = cardIndex; i < cardIndex + 3; i++) {
             ImageView cardImage = new ImageView(new Image(Objects.requireNonNull(getClass()
                     .getResourceAsStream(PATH + cardList.get(i).toString()))));
+            controller.getGameLogic().getActualCardsList().add(cardList.get(i));
             cardImage.setId(cardList.get(i).toString());
             cardImage.setOnMouseClicked(c -> onClickCardProcess(cardImage));
             cardImage.setPreserveRatio(true);
@@ -238,6 +253,11 @@ public class SetGamePane extends AnchorPane {
     private void delete3Cards(){
         for (String cardId : cardNameList) {
             getChildren().removeIf(card -> card.getId().equals(cardId));
+            for (int i = controller.getGameLogic().getActualCardsList().size() - 1; i > 0; i-- ){
+                if( controller.getGameLogic().getActualCardsList().get(i).toString().equals(cardId) ){
+                    controller.getGameLogic().getActualCardsList().remove(i);
+                }
+            }
         }
     }
 
@@ -249,6 +269,22 @@ public class SetGamePane extends AnchorPane {
         infoStage.initOwner(controller.getPrimaryStage());
         infoStage.setWidth(520);
         infoStage.setHeight(270);
+        infoStage.setOnCloseRequest(e ->{
+            if( controller.getGameLogic().isSetCards(cardNameList) ){
+                if(  13 >= getChildren().size() && 79 > cardIndex ){
+                    set3NewCards();
+                }
+                else{
+                    delete3Cards();
+                    reShowCards();
+                }
+            }
+            clearChosenCardsShadow();
+            cardNameList.clear();
+            if( isEndOfTheGame() ){
+                controller.getEndOfGameProcess();
+            }
+        });
         AnchorPane pane = new AnchorPane();
         pane.setStyle("-fx-background-color: white;");
         pane.setPrefWidth(520);
@@ -308,8 +344,8 @@ public class SetGamePane extends AnchorPane {
         cardNameList.clear();
         cardList = controller.getGameLogic().getCards(81);
         getChildren().clear();
-        setTimerText();
         showCards();
+        setTimerText();
         getTimeline().play();
     }
 

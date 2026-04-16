@@ -41,7 +41,7 @@ public class SetGameController {
         gamePane.add3NewCards();
     }
 
-    private boolean getConfirmationAlert(String title) {
+    public boolean getConfirmationAlert(String title, String text) {
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         Stage stage = (Stage) alert.getDialogPane().getScene().getWindow();
         stage.getIcons().add(new Image(
@@ -49,27 +49,38 @@ public class SetGameController {
                         .getResourceAsStream("/icon/diamond.png"))));
         alert.initOwner(primaryStage);
         alert.setTitle(title);
-        alert.setHeaderText("Would you like to play a new SET game?");
+        alert.setHeaderText(text);
         Optional<ButtonType> option = alert.showAndWait();
         return option.get() == ButtonType.OK;
     }
 
-    public void setTitle(){
-            primaryStage.setTitle("SET: " + gamePane.getSetStateValue() +
-                    ", Not SET: " + gamePane.getNotSetStateValue() +
-                    ", Cards: " + (SetGameLogic.MAX_CARDS - gamePane.getCardIndex()));
+    public void setTitle(boolean isShowValueOfSET){
+       if( isShowValueOfSET ){
+           primaryStage.setTitle("SET: " + gamePane.getSetStateValue() +
+                   " [" + (int) Math.ceil((double) gameLogic.getCardsOfSET().size() / 3) + "]" +
+                   ", Not SET: " + gamePane.getNotSetStateValue() +
+                   ", Cards: " + (SetGameLogic.MAX_CARDS - gamePane.getCardIndex()));
+       }
+       else {
+           primaryStage.setTitle("SET: " + gamePane.getSetStateValue() +
+                   ", Not SET: " + gamePane.getNotSetStateValue() +
+                   ", Cards: " + (SetGameLogic.MAX_CARDS - gamePane.getCardIndex()));
+       }
     }
 
     public void getEndOfGameProcess(){
       getGamePane().getTimeline().stop();
       int score = 0 >= gamePane.getSetStateValue() - gamePane.getNotSetStateValue() ? 0 :
        Math.round(10000 * (gamePane.getSetStateValue() - gamePane.getNotSetStateValue()) / (float) gamePane.getSec());
-      if( getConfirmationAlert("Your score: " + score) ){
+      if( getConfirmationAlert("Your score: " + score, "Would you like to play a new game?") ){
             gamePane.initGamePane();
             primaryStage.setTitle("Let's play SET!");
       }
       else {
-          System.exit(0);
+          if( getConfirmationAlert("Close SET Game", "Would you like to exit?") ){
+             System.exit(0);
+          }
+          getGamePane().getTimeline().play();
       }
     }
 

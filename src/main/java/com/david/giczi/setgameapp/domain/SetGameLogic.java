@@ -1,15 +1,41 @@
 package com.david.giczi.setgameapp.domain;
 import com.david.giczi.setgameapp.utils.Feature;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 public class SetGameLogic {
 
+    private final HashSet<Card> cardsOfSET = new HashSet<>();
+    private final List<Card> actualCardsList = new ArrayList<>();
     private static final Feature[] NUMBER = {Feature.one, Feature.two, Feature.three};
     private static final Feature[] COLOR = {Feature.red, Feature.green, Feature.purple};
     private static final Feature[] FORM = {Feature.capsule, Feature.cell, Feature.square};
     private static final Feature[] FILLING = {Feature.empty, Feature.filled, Feature.striped};
     public static final int MAX_CARDS = 81;
+
+
+    public List<Card> getActualCardsList() {
+        return actualCardsList;
+    }
+
+    public HashSet<Card> getCardsOfSET() {
+        return cardsOfSET;
+    }
+    public void collectSETByActualCards(){
+        cardsOfSET.clear();
+        for(int i = 0; i < actualCardsList.size() - 2; i++){
+            for(int j = i + 1; j < actualCardsList.size() - 1; j++ )
+                for(int k = i + 2; k < actualCardsList.size(); k++){
+
+                if( isSETState(actualCardsList.get(i), actualCardsList.get(j), actualCardsList.get(k) ) ){
+                        cardsOfSET.add(actualCardsList.get(i));
+                        cardsOfSET.add(actualCardsList.get(j));
+                        cardsOfSET.add(actualCardsList.get(k));
+                    }
+                }
+            }
+        }
 
     public List<Card> getCards(int numberOfCards){
         List<Card> cards = new ArrayList<>();
@@ -57,7 +83,7 @@ public class SetGameLogic {
                     break;
             }
         }
-        return  isSetState(oneCard, twoCard, threeCard);
+        return  isSETState(oneCard, twoCard, threeCard);
     }
 
     private Feature parseFeature(String feature){
@@ -97,7 +123,7 @@ public class SetGameLogic {
         return Feature.striped;
     }
 
-    private boolean isSetState(Card oneCard, Card twoCard, Card threeCard){
+    private boolean isSETState(Card oneCard, Card twoCard, Card threeCard){
     return isSetStateWithOneFeature(oneCard, twoCard, threeCard) ||
             isSetStateWithTwoFeature(oneCard, twoCard, threeCard) ||
             isSetStateWithThreeFeature(oneCard, twoCard, threeCard) ||

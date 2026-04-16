@@ -6,6 +6,7 @@ import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.scene.input.MouseButton;
 import javafx.stage.Stage;
+
 import java.util.Objects;
 
 public class SetGameApplication extends Application {
@@ -18,12 +19,25 @@ public class SetGameApplication extends Application {
 
     @Override
     public void start(Stage stage) {
-        stage.setOnCloseRequest(e -> controller.getGamePane().getTimeline().stop());
+        stage.setOnCloseRequest(e -> {
+            controller.getGamePane().getTimeline().stop();
+            if(controller.getConfirmationAlert("Close SET Game", "Would you like to exit?") ){
+                System.exit(0);
+                return;
+            }
+            controller.getGamePane().getTimeline().play();
+           e.consume();
+        });
         controller.setPrimaryStage(stage);
         controller.getGamePane().setOnMouseClicked(mouseEvent -> {
             if( mouseEvent.getButton() == MouseButton.SECONDARY){
                 controller.add3NewCards();
-                controller.setTitle();
+                controller.setTitle(false);
+            }
+            else if( mouseEvent.getButton() == MouseButton.MIDDLE ){
+                    controller.getGameLogic().collectSETByActualCards();
+                    controller.setTitle(true);
+                    controller.getGamePane().showSETCards();
             }
             else if( mouseEvent.getButton() == MouseButton.PRIMARY &&
                     mouseEvent.getClickCount() == 2 ){
