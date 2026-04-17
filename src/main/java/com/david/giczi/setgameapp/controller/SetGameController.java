@@ -1,10 +1,12 @@
 package com.david.giczi.setgameapp.controller;
+
 import com.david.giczi.setgameapp.domain.SetGameLogic;
 import com.david.giczi.setgameapp.view.SetGamePane;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
+
 import java.util.Objects;
 import java.util.Optional;
 

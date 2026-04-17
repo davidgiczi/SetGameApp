@@ -18,6 +18,7 @@ import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -91,6 +92,7 @@ public class SetGamePane extends AnchorPane {
             cardImage.xProperty().bind(widthProperty().divide(10).subtract(135 * MILLIMETER).add(HR_SHIFT));
             cardImage.yProperty().bind(heightProperty().divide(10).subtract(45 * MILLIMETER).add(VR_SHIFT));
             getChildren().add(cardImage);
+
             HR_SHIFT += 50 * MILLIMETER;
            if( rowIndex % 4 == 3 ){
                 HR_SHIFT = 0;
@@ -132,9 +134,9 @@ public class SetGamePane extends AnchorPane {
     }
 
     private void clearChosenCardsShadow(){
-            for (Node card : getChildren()) {
+            for (Node card : getChildren() ) {
                 if( card.getId().equals("timer") ){
-                    return;
+                    continue;
                 }
                 card.setStyle("-fx-effect: null;");
             }
