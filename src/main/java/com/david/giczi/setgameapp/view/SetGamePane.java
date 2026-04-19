@@ -77,11 +77,9 @@ public class SetGamePane extends AnchorPane {
         double HR_SHIFT = 0;
         double VR_SHIFT = 0;
         int rowIndex = 0;
-        controller.getGameLogic().getActualCardsList().clear();
         for (int i = cardIndex; i < cardIndex + 12; i++) {
             ImageView cardImage = new ImageView(new Image(Objects.requireNonNull(getClass()
                     .getResourceAsStream(PATH + cardList.get(i).toString()))));
-            controller.getGameLogic().getActualCardsList().add(cardList.get(i));
             cardImage.setId(cardList.get(i).toString());
             cardImage.setOnMouseClicked(c -> onClickCardProcess(cardImage));
             cardImage.setPreserveRatio(true);
@@ -133,7 +131,7 @@ public class SetGamePane extends AnchorPane {
         return 3 <= cardNameList.size();
     }
 
-    private void clearChosenCardsShadow(){
+    public void clearChosenCardsShadow(){
             for (Node card : getChildren() ) {
                 if( card.getId().equals("timer") ){
                     continue;
@@ -175,7 +173,6 @@ public class SetGamePane extends AnchorPane {
                    ImageView cardImage = (ImageView) getChildren().get(getChildren().indexOf(card));
                    cardImage.setImage(new Image(Objects.requireNonNull(getClass()
                             .getResourceAsStream(PATH + cardList.get(cardIndex).toString()))));
-                   controller.getGameLogic().getActualCardsList().set(getChildren().indexOf(card), cardList.get(cardIndex));
                    cardImage.setId(cardList.get(cardIndex).toString());
                    getChildren().set(getChildren().indexOf(card), cardImage);
                 }
@@ -193,7 +190,6 @@ public class SetGamePane extends AnchorPane {
         for (int i = cardIndex; i < cardIndex + 3; i++) {
             ImageView cardImage = new ImageView(new Image(Objects.requireNonNull(getClass()
                     .getResourceAsStream(PATH + cardList.get(i).toString()))));
-            controller.getGameLogic().getActualCardsList().add(cardList.get(i));
             cardImage.setId(cardList.get(i).toString());
             cardImage.setOnMouseClicked(c -> onClickCardProcess(cardImage));
             cardImage.setPreserveRatio(true);
@@ -231,7 +227,7 @@ public class SetGamePane extends AnchorPane {
         }
         double HR_SHIFT = 0;
         double VR_SHIFT = 0;
-        for (int i = 0 ; i < cardIdList.size(); i++) {
+        for (int i = 0 ;  i < cardIdList.size(); i++) {
             ImageView cardImage = new ImageView(new Image(Objects.requireNonNull(getClass()
                     .getResourceAsStream(PATH + cardIdList.get(i)))));
             cardImage.setId(cardIdList.get(i));

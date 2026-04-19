@@ -1,7 +1,9 @@
 package com.david.giczi.setgameapp.controller;
 
+import com.david.giczi.setgameapp.domain.Card;
 import com.david.giczi.setgameapp.domain.SetGameLogic;
 import com.david.giczi.setgameapp.view.SetGamePane;
+import javafx.scene.Node;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.image.Image;
@@ -36,10 +38,27 @@ public class SetGameController {
         this.primaryStage = primaryStage;
     }
 
+    public void collectActualCards() {
+        gameLogic.getActualCardsList().clear();
+        for (Node cardOnScreen : gamePane.getChildren()) {
+            if (cardOnScreen.getId().equals("timer")) {
+                continue;
+            }
+            String[] features = cardOnScreen.getId()
+                    .substring(0, cardOnScreen.getId().indexOf(".")).split("_");
+            Card card = new Card();
+            for (String feature : features) {
+                card.getFeature().add(gameLogic.parseFeature(feature));
+            }
+            gameLogic.getActualCardsList().add(card);
+        }
+    }
+
     public void add3NewCards(){
         if( SetGameLogic.MAX_CARDS == gamePane.getCardIndex() ){
             return;
         }
+        gamePane.clearChosenCardsShadow();
         gamePane.add3NewCards();
     }
 

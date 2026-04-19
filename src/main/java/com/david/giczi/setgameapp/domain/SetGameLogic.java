@@ -22,6 +22,8 @@ public class SetGameLogic {
     public HashSet<Card> getCardsOfSET() {
         return cardsOfSET;
     }
+
+
     public void collectSETByActualCards(){
         cardsOfSET.clear();
         for(int i = 0; i < actualCardsList.size() - 2; i++){
@@ -86,7 +88,7 @@ public class SetGameLogic {
         return  isSETState(oneCard, twoCard, threeCard);
     }
 
-    private Feature parseFeature(String feature){
+    public Feature parseFeature(String feature){
         if( Feature.one.toString().equals(feature) ){
             return Feature.one;
         }

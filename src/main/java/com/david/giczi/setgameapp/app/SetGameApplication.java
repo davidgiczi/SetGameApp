@@ -35,6 +35,7 @@ public class SetGameApplication extends Application {
                 controller.setTitle(false);
             }
             else if( mouseEvent.getButton() == MouseButton.MIDDLE ){
+                    controller.collectActualCards();
                     controller.getGameLogic().collectSETByActualCards();
                     controller.setTitle(true);
                     controller.getGamePane().showSETCards();
